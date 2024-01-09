@@ -1,27 +1,34 @@
-import React, { useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { addContact } from '../../redux/contactsSlice';
+import { getContacts } from '../../redux/selectors';
+import React, { useEffect } from 'react';
+import { nanoid } from 'nanoid'; 
 import css from './ContactForm.module.css';
 
-const ContactForm = ({ handleSubmit }) => {
-  const [name, setName] = useState('');
-  const [number, setNumber] = useState('');
+ const ContactForm = () => {
+  const dispatch = useDispatch();
+  const contacts = useSelector(getContacts);
 
-  const handleNameChange = (e) => {
-    setName(e.target.value);
+  useEffect(() => {
+    localStorage.setItem('contacts', JSON.stringify(contacts));
+  }, [contacts]
+  );
+  
+
+  const handleSubmit = event => {
+    event.preventDefault();
+    const form = event.target;
+    const name = form.elements.name.value;
+    const number = form.elements.number.value;
+    const id = nanoid();
+ 
+    dispatch(addContact({ id, name, number }));
+    form.reset();
   };
 
-  const handleNumberChange = (e) => {
-    setNumber(e.target.value);
-  };
-
-  const handleFormSubmit = (e) => {
-    e.preventDefault();
-    handleSubmit(e, name, number);
-    setName('');
-    setNumber('');
-  };
 
   return (
-    <form onSubmit={handleFormSubmit}>
+    <form onSubmit={handleSubmit}>
       <label>
         <p>Name:</p>
         <input
@@ -29,9 +36,10 @@ const ContactForm = ({ handleSubmit }) => {
           name="name"
           pattern="^[a-zA-Zа-яА-Я]+(([a-zA-Zа-яА-Я ])?[a-zA-Zа-яА-Я]*)*$"
           title="Name may contain only letters, apostrophe, dash and spaces. For example Adrian, Jacob Mercer, Charles de Batz de Castelmore d'Artagnan"
+          placeholder="Enter name"
+          autoComplete="name"
           required
-          value={name}
-          onChange={handleNameChange}
+        
         />
       </label>
       <label>
@@ -41,9 +49,10 @@ const ContactForm = ({ handleSubmit }) => {
           name="number"
           pattern="[0-9\s\-]+"
           title="Phone number must be digits and can contain spaces, dashes, parentheses and can start with +"
+          placeholder="Enter name"
+          autoComplete="name"
           required
-          value={number}
-          onChange={handleNumberChange}
+         
         />
       </label>
       <button className={css.button__add} type="submit">
@@ -53,6 +62,4 @@ const ContactForm = ({ handleSubmit }) => {
   );
 };
 
-export default ContactForm;
-
-
+export default ContactForm
